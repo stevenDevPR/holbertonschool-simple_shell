@@ -20,7 +20,8 @@ To run the command interpreter, follow these steps:
 2. Navigate to the project directory: `cd holbertonschool-simple_shell`
 3. Compile the source code:`gcc -o shell simple-shell.c` 
 4. Run the command interpreter:`./shell`
-5. Run Commands ![Shell gif](https://miro.medium.com/v2/resize:fit:1200/1*lqEaA1-6gGQhdLS3k8X0xw.gif)
+5. Run Commands 
+- ![Shell gif](https://miro.medium.com/v2/resize:fit:1200/1*lqEaA1-6gGQhdLS3k8X0xw.gif)
 
 ## Simple Shell
 
