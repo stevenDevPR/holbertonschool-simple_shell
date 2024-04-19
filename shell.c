@@ -17,15 +17,11 @@ int main(void)
 
     while (1)
     {
-        /* Display prompt */
-        printf("($) ");
-
         /* Read user input */
         if (fgets(input, MAX_INPUT_LENGTH, stdin) == NULL)
         {
             if (feof(stdin))
             {
-                printf("\n"); /* Print newline for EOF */
                 break; /* Exit loop on EOF */
             }
             else
