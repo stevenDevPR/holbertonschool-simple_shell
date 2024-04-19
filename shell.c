@@ -22,11 +22,14 @@ int main(void)
         printf("($) ");
 
         /* Read user input */
-        if (scanf("%99[^\n]%*c", input) == EOF)
+        if (read(STDIN_FILENO, input, MAX_INPUT_LENGTH) == -1)
         {
-            printf("\n"); /* Print newline for EOF */
-            break; /* Exit loop on EOF */
+            perror("read");
+            exit(EXIT_FAILURE);
         }
+
+        /* Remove newline character from the end of input */
+        input[strcspn(input, "\n")] = '\0';
 
         /* Check if the command is "exit" */
         if (strcmp(input, "exit") == 0)
