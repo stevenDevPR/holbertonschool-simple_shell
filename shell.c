@@ -14,27 +14,25 @@ int main(void)
     char input[MAX_INPUT_LENGTH]; /* Buffer to store user input */
     int status; /* Status of child process */
     pid_t pid;
-    ssize_t input_length;
 
     while (1)
     {
         /* Read user input */
-        printf("($) ");
-        input_length = read(STDIN_FILENO, input, MAX_INPUT_LENGTH);
-        if (input_length == -1)
+        if (fgets(input, MAX_INPUT_LENGTH, stdin) == NULL)
         {
-            perror("read");
-            exit(EXIT_FAILURE);
-        }
-        else if (input_length == 0)
-        {
-            /* EOF reached */
-            printf("\n");
-            break;
+            if (feof(stdin))
+            {
+                break; /* Exit loop on EOF */
+            }
+            else
+            {
+                perror("fgets"); /* Print error message for other errors */
+                exit(EXIT_FAILURE);
+            }
         }
 
         /* Remove newline character from the end of input */
-        input[input_length - 1] = '\0';
+        input[strcspn(input, "\n")] = '\0';
 
         /* Check if the command is "exit" */
         if (strcmp(input, "exit") == 0)
