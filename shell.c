@@ -15,6 +15,7 @@ int main(void)
     int status; /* Status of child process */
     char command_path[MAX_INPUT_LENGTH];
     pid_t pid;
+    size_t input_length;
 
     while (1)
     {
@@ -22,18 +23,25 @@ int main(void)
         printf("($) ");
 
         /* Read user input */
-        if (scanf("%99s", input) == EOF)
+        if (fgets(input, MAX_INPUT_LENGTH, stdin) == NULL)
         {
-            if (feof(stdin))
-            {
-                printf("\n"); /* Print newline for EOF */
-                break; /* Exit loop on EOF */
-            }
-            else
-            {
-                perror("scanf"); /* Print error message for other errors */
-                exit(EXIT_FAILURE);
-            }
+            printf("\n"); /* Print newline for EOF */
+            break; /* Exit loop on EOF */
+        }
+
+        /* Find the length of the input string */
+        input_length = strlen(input);
+
+        /* Check if the input ended with a newline character */
+        if (input[input_length - 1] == '\n')
+        {
+            /* Remove newline character from the end of input */
+            input[input_length - 1] = '\0';
+        }
+        else
+        {
+            /* Clear the input buffer */
+            while (getchar() != '\n');
         }
 
         /* Check if the command is "exit" */
