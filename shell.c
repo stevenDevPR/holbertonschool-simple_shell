@@ -13,26 +13,20 @@ int main(void)
 {
     char input[MAX_INPUT_LENGTH]; /* Buffer to store user input */
     int status; /* Status of child process */
+    char command_path[MAX_INPUT_LENGTH];
     pid_t pid;
 
     while (1)
     {
-        /* Read user input */
-        if (fgets(input, MAX_INPUT_LENGTH, stdin) == NULL)
-        {
-            if (feof(stdin))
-            {
-                break; /* Exit loop on EOF */
-            }
-            else
-            {
-                perror("fgets"); /* Print error message for other errors */
-                exit(EXIT_FAILURE);
-            }
-        }
+        /* Display prompt */
+        printf("($) ");
 
-        /* Remove newline character from the end of input */
-        input[strcspn(input, "\n")] = '\0';
+        /* Read user input */
+        if (scanf("%99[^\n]%*c", input) == EOF)
+        {
+            printf("\n"); /* Print newline for EOF */
+            break; /* Exit loop on EOF */
+        }
 
         /* Check if the command is "exit" */
         if (strcmp(input, "exit") == 0)
@@ -48,6 +42,9 @@ int main(void)
             continue; /* Skip executing command */
         }
 
+        /* Use the input as the command path */
+        strncpy(command_path, input, MAX_INPUT_LENGTH);
+
         /* Fork a new process */
         pid = fork();
         if (pid == -1)
@@ -58,7 +55,7 @@ int main(void)
         else if (pid == 0)
         {
             /* Child process */
-            execl(input, input, (char *)NULL);
+            execl(command_path, input, (char *)NULL);
             /* If execl returns, it means command execution failed */
             perror(input);
             exit(EXIT_FAILURE);
