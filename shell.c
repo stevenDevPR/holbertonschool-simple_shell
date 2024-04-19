@@ -18,10 +18,8 @@ int main(void)
 
     while (1)
     {
-        /* Display prompt */
-        printf("($) ");
-
         /* Read user input */
+        printf("($) ");
         input_length = read(STDIN_FILENO, input, MAX_INPUT_LENGTH);
         if (input_length == -1)
         {
