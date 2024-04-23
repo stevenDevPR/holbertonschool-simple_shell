@@ -1,29 +1,6 @@
 #include "main.h"
 
 /**
- * display_shell_prompt - displays the shell prompt.
-*/
-void display_shell_prompt(void)
-{
-    printf(">>>> ");
-    fflush(stdout);
-}
-
-/**
- * remove_newline_character - removes the newline character from a string.
- * @str: The string to modify.
-*/
-void remove_newline_character(char *str)
-{
-    char *newline = strchr(str, '\n');
-
-    if (newline != NULL)
-    {
-        *newline = '\0';
-    }
-}
-
-/**
  * execute_shell_command - executes the provided shell command.
  * @command: The command to execute.
  *
@@ -65,5 +42,28 @@ int execute_shell_command(char *command)
         waitpid(pid, &status, 0);
     }
     return status;
+}
+
+/**
+ * remove_newline_character - removes the newline character from a string.
+ * @str: The string to modify.
+*/
+void remove_newline_character(char *str)
+{
+    char *newline = strchr(str, '\n');
+
+    if (newline != NULL)
+    {
+        *newline = '\0';
+    }
+}
+
+/**
+ * display_shell_prompt - displays the shell prompt.
+*/
+void display_shell_prompt(void)
+{
+    printf(">>>> ");
+    fflush(stdout);
 }
 
