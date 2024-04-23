@@ -106,6 +106,10 @@ int main(void)
                 free(new_path);
                 return EXIT_FAILURE;
             }
+	    if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+	    {
+		    printf("\n");
+	    }
         }
     }
     free(new_path);
