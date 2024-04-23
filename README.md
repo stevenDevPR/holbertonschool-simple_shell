@@ -27,7 +27,7 @@ To run the command interpreter, follow these steps:
 
 The initial version of the shell, Simple Shell, provides basic functionality as follows:
 
-- Display a prompt and wait for the user to type a command. The command line always ends with a new line.
+- Display a prompt and wait for the user to type a command. The command line always ends with a new line
 - The prompt is displayed again each time a command has been executed.
 - The command lines are simple, consisting of only one word. No arguments are passed to programs.
 - If an executable cannot be found, an error message is printed, and the prompt is displayed again.
