@@ -1,13 +1,12 @@
+#include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
-#include "shell.h"
 
 #define MAX_COMMAND_LENGTH 1024
 #define MAX_ARGS 64
-
 int main(void)
 {
     char cwd[MAX_COMMAND_LENGTH];
@@ -47,7 +46,6 @@ int main(void)
         free(new_path);
         return EXIT_FAILURE;
     }
-
     /* Main shell loop */
     while (1) {
         char command[MAX_COMMAND_LENGTH];
@@ -111,7 +109,6 @@ int main(void)
             }
         }
     }
-
     free(new_path);
     return EXIT_SUCCESS;
 }
