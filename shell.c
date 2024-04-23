@@ -54,9 +54,6 @@ int main(void)
         char *cmd_argv[MAX_ARGS];
         int i;
 
-        /* Display prompt */
-        printf("($) ");
-
         /* Read command from stdin */
         if (fgets(command, sizeof(command), stdin) == NULL) {
             printf("\n"); /* Print newline and exit on EOF (Ctrl+D) */
@@ -66,7 +63,8 @@ int main(void)
         /* Remove newline character */
         command[strcspn(command, "\n")] = '\0';
 
-	 if (strcmp(command, "exit") == 0) {
+        /* Check if the command is "exit" */
+        if (strcmp(command, "exit") == 0) {
             break; /* Exit the shell */
         }
 
