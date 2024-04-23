@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
+#include "shell.h"
 
 #define MAX_COMMAND_LENGTH 1024
 #define MAX_ARGS 64
