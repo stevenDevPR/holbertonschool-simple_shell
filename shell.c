@@ -10,17 +10,11 @@
 
 int main(void)
 {
-<<<<<<< HEAD
-    char input[MAX_INPUT_LENGTH]; /* Buffer to store user input */
-    int status; /* Status of child process */
-    char command_path[MAX_INPUT_LENGTH];
-=======
     char cwd[MAX_COMMAND_LENGTH];
     char *path;
     size_t path_len;
     size_t new_path_len;
     char *new_path;
->>>>>>> steven_branch
     pid_t pid;
     char cmd_with_path[MAX_COMMAND_LENGTH];
 
@@ -60,28 +54,6 @@ int main(void)
         char *cmd_argv[MAX_ARGS];
         int i;
 
-<<<<<<< HEAD
-    FILE *input_file;
-
-    /* Open a temporary file for writing */
-    input_file = fopen("input.txt", "w");
-    if (input_file == NULL)
-    {
-        perror("fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    while (1)
-    {
-        /* Display prompt */
-        printf("($) ");
-
-        /* Read user input */
-        if (fgets(input, MAX_INPUT_LENGTH, stdin) == NULL)
-        {
-            printf("\n"); /* Print newline for EOF */
-            break; /* Exit loop on EOF */
-=======
         /* Display prompt */
         printf("($) ");
 
@@ -89,7 +61,6 @@ int main(void)
         if (fgets(command, sizeof(command), stdin) == NULL) {
             printf("\n"); /* Print newline and exit on EOF (Ctrl+D) */
             break;
->>>>>>> steven_branch
         }
 
         /* Remove newline character */
@@ -107,12 +78,6 @@ int main(void)
         }
         cmd_argv[MAX_ARGS - 1] = NULL; /* Ensure the last element is NULL */
 
-        /* Use the input as the command path */
-        strncpy(command_path, input, MAX_INPUT_LENGTH);
-
-        /* Write input to the temporary file */
-        fprintf(input_file, "%s\n", input);
-
         /* Fork a new process */
         pid = fork();
         if (pid == -1) {
@@ -123,34 +88,6 @@ int main(void)
 
         if (pid == 0) {
             /* Child process */
-<<<<<<< HEAD
-            /* Close the file descriptor for the input file */
-            fclose(input_file);
-
-            /* Open the temporary file for reading */
-            input_file = fopen("input.txt", "r");
-            if (input_file == NULL)
-            {
-                perror("fopen");
-                exit(EXIT_FAILURE);
-            }
-
-            /* Redirect stdin to the temporary file */
-            if (dup2(fileno(input_file), STDIN_FILENO) == -1)
-            {
-                perror("dup2");
-                exit(EXIT_FAILURE);
-            }
-
-            /* Execute the command */
-            execl(command_path, input, (char *)NULL);
-            /* If execl returns, it means command execution failed */
-            perror(input);
-            exit(EXIT_FAILURE);
-        }
-        else
-        {
-=======
             /* Execute the command */
             execvp(cmd_argv[0], cmd_argv);
 
@@ -164,7 +101,6 @@ int main(void)
             free(new_path);
             return EXIT_FAILURE;
         } else {
->>>>>>> steven_branch
             /* Parent process */
             /* Wait for child process to finish */
             int status;
@@ -173,21 +109,9 @@ int main(void)
                 free(new_path);
                 return EXIT_FAILURE;
             }
-
-            /* Rewind the input file */
-            rewind(input_file);
         }
     }
 
-<<<<<<< HEAD
-    /* Close the input file */
-    fclose(input_file);
-
-    /* Remove the temporary file */
-    remove("input.txt");
-
-=======
     free(new_path);
->>>>>>> steven_branch
     return EXIT_SUCCESS;
 }
