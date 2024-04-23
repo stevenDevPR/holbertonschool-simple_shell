@@ -4,101 +4,78 @@
 #include <string.h>
 #include <sys/wait.h>
 
-#define MAX_COMMAND_LENGTH 1024
-#define MAX_ARGS 64
+#define MAX_ARGS 100
 
-int main(void) {
-    char cwd[MAX_COMMAND_LENGTH];
-    char *path;
-    size_t path_len;
-    size_t new_path_len;
-    char *new_path;
+void parse_line(char *line, char *argv[])
+{
+    char *token;
+    int argc = 0;
 
-    /* Get the current directory */
-    if (getcwd(cwd, sizeof(cwd)) == NULL) {
-        perror("getcwd");
-        return EXIT_FAILURE;
+    token = strtok(line, " ");
+    while (token != NULL && argc < MAX_ARGS - 1) {
+        argv[argc++] = token;
+        token = strtok(NULL, " ");
     }
+    argv[argc] = NULL;
+}
 
-    /* Get the length of the PATH environment variable */
-    path = getenv("PATH");
-    path_len = strlen(path);
+int main(void)
+{
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t nread;
+    char *argv[MAX_ARGS];
+    int status;
+    pid_t pid;
 
-    /* Calculate the total length of new_path */
-    new_path_len = strlen("PATH=") + strlen(cwd) + 1 + path_len + 1;
+    while (1)
+    {
+        write(STDOUT_FILENO, "$ ", 2);
+        nread = getline(&line, &len, stdin);
+        if (nread == -1)
+        {
+            if (feof(stdin))
+            {
+                write(STDOUT_FILENO, "\n", 1);
+                break;
+            }
+            perror("getline");
+            exit(EXIT_FAILURE);
+        }
 
-    /* Allocate memory for new_path */
-    new_path = (char *)malloc(new_path_len);
-    if (new_path == NULL) {
-        perror("malloc");
-        return EXIT_FAILURE;
-    }
+        /* Remove trailing newline character */
+        if (line[nread - 1] == '\n')
+            line[nread - 1] = '\0';
 
-    /* Construct the new PATH variable */
-    snprintf(new_path, new_path_len, "PATH=%s:%s", cwd, path);
+        /* Split the line into arguments */
+        parse_line(line, argv);
 
-    /* Set the new PATH variable in the environment */
-    if (putenv(new_path) != 0) {
-        perror("putenv");
-        free(new_path);
-        return EXIT_FAILURE;
-    }
-
-    /* Main shell loop */
-    while (1) {
-        char command[MAX_COMMAND_LENGTH];
-        pid_t pid;
-        int status;
-
-        /* Print shell prompt */
-        printf("($) ");
-
-        /* Read command from stdin */
-        if (fgets(command, sizeof(command), stdin) == NULL) {
-            printf("\n"); /* Print newline and exit on EOF (Ctrl+D) */
+        /* Exit the shell if the user inputs "exit" */
+        if (strcmp(argv[0], "exit") == 0)
             break;
-        }
 
-        /* Remove newline character */
-        command[strcspn(command, "\n")] = '\0';
-
-        /* Check if the command is "exit" */
-        if (strcmp(command, "exit") == 0) {
-            break; /* Exit the shell */
-        }
-
-        /* Fork a new process */
         pid = fork();
-        if (pid == -1) {
+        if (pid == -1)
+        {
             perror("fork");
-            free(new_path);
-            return EXIT_FAILURE;
+            exit(EXIT_FAILURE);
         }
-
-        if (pid == 0) {
+        if (pid == 0)
+        {
             /* Child process */
-            /* Execute the command */
-            execlp(command, command, NULL);
-
-            /* If execlp returns, it means command execution failed */
-            perror(command);
-            free(new_path);
-            return EXIT_FAILURE;
-        } else {
+            if (execvp(argv[0], argv) == -1)
+            {
+                perror(argv[0]);
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
             /* Parent process */
-            /* Wait for child process to finish */
-            if (waitpid(pid, &status, 0) == -1) {
-                perror("waitpid");
-                free(new_path);
-                return EXIT_FAILURE;
-            }
-            if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-                /* Command executed successfully */
-                printf("\n"); /* Print newline after successful command execution */
-            }
+            waitpid(pid, &status, 0);
         }
     }
 
-    free(new_path);
-    return EXIT_SUCCESS;
+    free(line);
+    exit(EXIT_SUCCESS);
 }
