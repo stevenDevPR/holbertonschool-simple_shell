@@ -1,20 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/wait.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #define MAX_COMMAND_LENGTH 1024
 #define MAX_ARGS 64
-int main(void)
-{
+
+int main(void) {
     char cwd[MAX_COMMAND_LENGTH];
     char *path;
     size_t path_len;
     size_t new_path_len;
     char *new_path;
-    pid_t pid;
-    char cmd_with_path[MAX_COMMAND_LENGTH];
 
     /* Get the current directory */
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
@@ -45,13 +43,14 @@ int main(void)
         free(new_path);
         return EXIT_FAILURE;
     }
+
     /* Main shell loop */
     while (1) {
         char command[MAX_COMMAND_LENGTH];
-        char *cmd_argv[MAX_ARGS];
-        int i;
+        pid_t pid;
+        int status;
 
-        /* Display prompt */
+        /* Print shell prompt */
         printf("($) ");
 
         /* Read command from stdin */
@@ -63,17 +62,10 @@ int main(void)
         /* Remove newline character */
         command[strcspn(command, "\n")] = '\0';
 
-	 if (strcmp(command, "exit") == 0) {
+        /* Check if the command is "exit" */
+        if (strcmp(command, "exit") == 0) {
             break; /* Exit the shell */
         }
-
-        /* Tokenize command */
-        cmd_argv[0] = strtok(command, " ");
-        for (i = 1; i < MAX_ARGS; i++) {
-            cmd_argv[i] = strtok(NULL, " ");
-            if (cmd_argv[i] == NULL) break;
-        }
-        cmd_argv[MAX_ARGS - 1] = NULL; /* Ensure the last element is NULL */
 
         /* Fork a new process */
         pid = fork();
@@ -86,32 +78,27 @@ int main(void)
         if (pid == 0) {
             /* Child process */
             /* Execute the command */
-            execvp(cmd_argv[0], cmd_argv);
+            execlp(command, command, NULL);
 
-            /* If execvp returns, it means command execution failed */
-            /* Try executing the command with the full path */
-            snprintf(cmd_with_path, sizeof(cmd_with_path), "/bin/%s", cmd_argv[0]);
-            execvp(cmd_with_path, cmd_argv);
-
-            /* If execvp returns, it means command execution failed */
-            perror(cmd_argv[0]);
+            /* If execlp returns, it means command execution failed */
+            perror(command);
             free(new_path);
             return EXIT_FAILURE;
         } else {
             /* Parent process */
             /* Wait for child process to finish */
-            int status;
             if (waitpid(pid, &status, 0) == -1) {
                 perror("waitpid");
                 free(new_path);
                 return EXIT_FAILURE;
             }
-	    if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-	    {
-		    printf("\n");
-	    }
+            if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+                /* Command executed successfully */
+                printf("\n"); /* Print newline after successful command execution */
+            }
         }
     }
+
     free(new_path);
     return EXIT_SUCCESS;
 }
