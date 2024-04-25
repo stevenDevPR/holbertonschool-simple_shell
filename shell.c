@@ -12,7 +12,8 @@ void parse_line(char *line, char *argv[])
     int argc = 0;
 
     token = strtok(line, " ");
-    while (token != NULL && argc < MAX_ARGS - 1) {
+    while (token != NULL && argc < MAX_ARGS - 1)
+    {
         argv[argc++] = token;
         token = strtok(NULL, " ");
     }
@@ -30,13 +31,13 @@ int main(void)
 
     while (1)
     {
-        write(STDOUT_FILENO, "$ ", 2);
+        printf("$ ");
         nread = getline(&line, &len, stdin);
         if (nread == -1)
         {
             if (feof(stdin))
             {
-                write(STDOUT_FILENO, "\n", 1);
+		    printf("\n");
                 break;
             }
             perror("getline");
@@ -73,7 +74,9 @@ int main(void)
         {
             /* Parent process */
             waitpid(pid, &status, 0);
-        }
+
+            /**Print the prompt if the child process exited normally*/
+       }
     }
 
     free(line);
