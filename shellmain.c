@@ -6,14 +6,17 @@
  * Return: 0 on success.
 **/
 
+
 int main()
 {
-    char *token, *command = NULL;
+    char *command = NULL;
     int status = 0;
     int has_whitespace_check = 1;
 
     while (1)
     {
+        char **argv;
+
         while (has_whitespace_check == 1)
         {
             command = get_user_input();
@@ -24,27 +27,27 @@ int main()
                 free(command);
             }
         }
-        token = strtok(command, "\n");
-        
-        if (token != NULL && command != NULL)
+        argv = tokenize_command(command);
+
+        if (argv != NULL && argv[0] != NULL)
         {
-            if (strcmp(token, "exit") == 0)
+            if (strcmp(argv[0], "exit") == 0)
             {
+                free_tokenized_arguments(argv);
                 free(command);
                 exit(EXIT_SUCCESS);
             }
             else
             {
-                status = execute_shell_command(command);
+                status = execute_shell_command(*argv); /**Dereference argv to pass correct argument*/
             }
-            token = strtok(NULL, "\n");
         }
+        free_tokenized_arguments(argv);
         free(command);
         has_whitespace_check = 1;
     }
     return status;
 }
-
 /**
  * get_user_input - reads a command from the user input.
  *
@@ -53,13 +56,11 @@ int main()
 char *get_user_input()
 {
     char *command = NULL;
-    size_t length = 0, buffer_size = 0;
+    char **argv, *display_command;
+    size_t buffer_size = 0;
     ssize_t bytes_read;
-    
-    if (isatty(STDIN_FILENO))
-    {
-        display_shell_prompt();
-    }
+
+    /** Read the command line*/
     bytes_read = getline(&command, &buffer_size, stdin);
     if (bytes_read == -1)
     {
@@ -71,15 +72,28 @@ char *get_user_input()
         free(command);
         exit(EXIT_SUCCESS);
     }
-    length = strlen(command);
-    
-    if (length > 0 && command[length - 1] == '\n')
-    {
-        command[length - 1] = '\0';
-    }
-    return command;
-}
 
+    /**Remove the trailing newline character*/
+    if (bytes_read > 0 && command[bytes_read - 1] == '\n')
+    {
+        command[bytes_read - 1] = '\0';
+        bytes_read--; /** Adjust the length*/
+    }
+
+    /**Tokenize the command*/
+    argv = tokenize_command(command);
+
+    /*Concatenate the arguments into a single string for display*/
+    display_command = concatenate_arguments(argv);
+
+    /**Free the memory allocated for the tokenized arguments*/
+    free_tokenized_arguments(argv);
+
+    /**Free the original command*/
+    free(command);
+
+    return display_command;
+}
 /**
  * has_whitespace - checks if whitespace is present in the command.
  * @command: the command to check for whitespace.
@@ -106,4 +120,3 @@ int has_whitespace(char *command)
     }
     return 1;
 }
-

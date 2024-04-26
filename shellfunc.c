@@ -1,4 +1,5 @@
 #include "main.h"
+#include <stdlib.h>
 
 /**
  * execute_shell_command - executes the provided shell command.
@@ -66,4 +67,96 @@ void display_shell_prompt(void)
     printf(">>>> ");
     fflush(stdout);
 }
+/**
+ * tokenize_command - Tokenizes a command string.
+ * @command: The command string to tokenize.
+ *
+ * Return: An array of tokens.
+ */
+char **tokenize_command(const char *command) {
+    char **tokens = malloc(sizeof(char *) * 32); // Assuming max 32 tokens
+    if (tokens == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
 
+    char *token;
+    int token_count = 0;
+    int in_quote = 0;
+       const char *whitespace = " \t\n\r";
+
+    token = strtok(command, whitespace);
+    while (token != NULL) {
+        // Check for quotes
+        if (token[0] == '"') {
+            in_quote = 1;
+            // Skip the leading quote
+            token++;
+        }
+
+        if (in_quote) {
+            // Concatenate tokens until closing quote is found
+            while (token[strlen(token) - 1] != '"') {
+                strcat(tokens[token_count], " ");
+                strcat(tokens[token_count], token);
+                token = strtok(NULL, whitespace);
+            }
+            // Add token with closing quote
+            strcat(tokens[token_count], " ");
+            strcat(tokens[token_count], token);
+            in_quote = 0;
+        } else {
+            tokens[token_count] = strdup(token);
+        }
+
+        token = strtok(NULL, whitespace);
+        token_count++;
+    }
+    tokens[token_count] = NULL;
+
+    return tokens;
+}
+void free_tokenized_arguments(char **argv)
+{
+	int i;
+    /** Free each token and then the array itself*/
+    for (i = 0; argv[i] != NULL; i++)
+    {
+        free(argv[i]);
+    }
+    free(argv);
+}
+char *concatenate_arguments(char **argv)
+{
+    int total_length = 0;
+    int i, j, k = 0;
+    char *result;
+
+    /* Calculate the total length of the concatenated string */
+    for (i = 0; argv[i] != NULL; i++)
+    {
+        total_length += strlen(argv[i]);
+    }
+
+    /* Allocate memory for the concatenated string */
+    result = malloc(total_length + 1); /* +1 for the null terminator */
+    if (result == NULL)
+    {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Copy each string from argv to the concatenated string */
+    for (i = 0; argv[i] != NULL; i++)
+    {
+        for (j = 0; argv[i][j] != '\0'; j++)
+        {
+            result[k++] = argv[i][j];
+        }
+    }
+
+    /* Add null terminator to the end of the concatenated string */
+    result[k] = '\0';
+
+    return result;
+}

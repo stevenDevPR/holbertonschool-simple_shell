@@ -16,5 +16,7 @@ char *get_user_input(void);
 int has_whitespace(char *command);
 int execute_shell_command(char *command);
 int main(void);
-
+void free_tokenized_arguments(char **argv);
+char *concatenate_arguments(char **argv);
+char **tokenize_command(const char *command);
 #endif
